@@ -264,11 +264,38 @@ public class Image extends AbstractImage {
 	 */
 	@Override
 	public void mirrorV(AbstractImage image2) {
-		System.out.println();
-		System.out.println("-------------------------------------------------");
-		System.out.println("Fonction � �crire");
-		System.out.println("-------------------------------------------------");
-		System.out.println();
+		
+		try {
+			assert (!image2.isEmpty()) : "L'image est vide.";
+			
+			Iterator<Node> it = iterator(),
+					it2 = image2.iterator();
+			
+			if (!isEmpty()) it.clear();
+			
+			it.addValue (it2.getValue());
+			
+			if (it2.nodeType() == NodeType.DOUBLE) {
+				
+				// copier la moitie inferieure de image 2 dans la moitie
+				// supierieure de this
+				it.goLeft();
+				it2.goRight();
+				explore_copy (it, it2, it2.getValue());
+				
+				// copier la moitie superieure de image 2 dans la moitie
+				// inferieure de this
+				it.goRight();
+				it2.goLeft();
+				explore_copy (it, it2, it2.getValue());
+				
+			}
+			
+		} catch (AssertionError e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		
 	}
 
 	/**
@@ -280,11 +307,48 @@ public class Image extends AbstractImage {
 	 */
 	@Override
 	public void mirrorH(AbstractImage image2) {
-		System.out.println();
-		System.out.println("-------------------------------------------------");
-		System.out.println("Fonction � �crire");
-		System.out.println("-------------------------------------------------");
-		System.out.println();
+		
+		try {
+			
+			assert (!image2.isEmpty()) : "L'image est vide.";
+			
+			Iterator<Node> it = iterator(),
+					it2 = image2.iterator();
+			
+			if (!isEmpty()) it.clear();
+			
+			it.addValue (it2.getValue());
+			
+			if (it2.nodeType() == NodeType.DOUBLE) {
+				
+				// Traitement de la moitie superieure
+				it.goLeft();
+				it2.goLeft();
+				it.addValue (it2.getValue());
+				if (it2.nodeType() == NodeType.DOUBLE) {
+					it.goLeft();
+					it2.goRight();
+					explore_copy (it, it2, it2.getValue());
+				}
+				it.goUp(); it.goUp(); it2.goUp(); it2.goUp();
+				
+				// Traitement de la moitie inferieure
+				it.goRight();
+				it2.goRight();
+				it.addValue (it2.getValue());
+				if (it2.nodeType() == NodeType.DOUBLE) {
+					it.goLeft();
+					it2.goRight();
+					explore_copy (it, it2, it2.getValue());
+				}
+				
+			}
+			
+		} catch (AssertionError e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		
 	}
 
 	/**
@@ -379,13 +443,119 @@ public class Image extends AbstractImage {
 	 */
 	@Override
 	public void intersection(AbstractImage image1, AbstractImage image2) {
-		System.out.println();
-		System.out.println("-------------------------------------------------");
-		System.out.println("Fonction � �crire");
-		System.out.println("-------------------------------------------------");
-		System.out.println();
+		try {
+			assert (!(image1.isEmpty() || image2.isEmpty())) :  "Les deux images sont vides";
+			assert (image1 != this) : "image1 == this";
+			assert (image2 != this) : "image2 == this";
+			
+			Iterator<Node> it1 = image1.iterator(),
+						   it2 = image2.iterator(),
+						   it3 = this.iterator();
+			
+			it3.clear();
+			
+			explore_intersection(it1, it2, it3, it1.getValue(), it2.getValue(), it3.getValue());
+		} catch(AssertionError e) {
+			
+		}
+	}
+	
+	public void explore_intersection(Iterator<Node> it1, Iterator<Node> it2, Iterator<Node> it3, Node root1, Node root2, Node root3) {
+		Node value = Node.valueOf(0);
+		int i, j;
+		i = j = 0;
+		
+		/*
+		if(it1.nodeType() == NodeType.LEAF || it2.nodeType() == NodeType.LEAF) {
+			if(it1.nodeType() == NodeType.LEAF && it2.nodeType() == NodeType.LEAF) {
+				value = (it1.getValue().state == 1 && it2.getValue().state == 1) ? Node.valueOf(1) : Node.valueOf(0);
+				it3.addValue(value);
+				
+				it3.goUp();
+			} else if(it1.nodeType() == NodeType.LEAF) {
+				if(it1.getValue().state == 0) {
+					it3.addValue(Node.valueOf(0));
+					it3.goUp();
+				} else {
+					explore_intersection(it1,it2,it3, null, null, null);
+				}
+			} else {
+				if(it2.getValue().state == 0) {
+					it3.addValue(Node.valueOf(0));
+					it3.goUp();
+				} else {
+					explore_intersection(it1,it2,it3, null, null, null);
+				}
+			}*/
+		if (it1.nodeType() == NodeType.LEAF) {
+			
+			if (it1.getValue().state == 1) explore_copy (it3, it2, it2.getValue());
+			else it3.addValue (Node.valueOf (0));
+			
+		} else if (it2.nodeType() == NodeType.LEAF) {
+			
+			if (it2.getValue().state == 1) explore_copy (it3, it1, it1.getValue());
+			else it3.addValue (Node.valueOf (0));
+			
+		} else {
+			it3.addValue(Node.valueOf(2));
+			it1.goRight();
+			it2.goRight();
+			it3.goRight();
+			explore_intersection(it1,it2,it3, null, null, null);
+			
+			it1.goLeft();
+			it2.goLeft();
+			it3.goLeft();
+			explore_intersection(it1,it2,it3, null, null, null);
+			
+			it3.goLeft();
+			if (it3.nodeType() == NodeType.LEAF) {
+				int v = it3.getValue().state;
+				it3.goUp();
+				it3.goRight();
+				if (it3.nodeType() == NodeType.LEAF) {
+					if (it3.getValue().state == v) {
+						it3.goUp();
+						it3.clear();
+						it3.setValue( Node.valueOf (v));
+					} else it3.goUp();
+				}
+			}
+				
+		}
+		
+		if(it1.getValue() != root1) {
+			it1.goUp();
+			it2.goUp();
+			it3.goUp();
+		}
 	}
 
+	private void optimize_tree (Iterator<Node> it) {
+		
+		if (it.nodeType() == NodeType.LEAF) {
+			
+			int v = it.getValue().state;
+			it.goUp();
+			it.goRight();
+			if (it.nodeType() == NodeType.LEAF)
+				if (it.getValue().state == v)
+					it.switchValue (1);
+					
+			it.goUp();
+			if (it.getValue().state != 2) {
+				it.clear();
+				it.addValue (Node.valueOf (v));
+			}
+		} else {
+			
+			it.goLeft();
+			optimize_tree (it);
+		}
+		
+	}
+	
 	/**
 	 * this devient l'union de image1 et image2 au sens des pixels allumés.
 	 * 
