@@ -157,7 +157,7 @@ public class BinaryTree<T> {
 		@Override
 		public void remove() {
 			try {
-				assert nodeType() != NodeType.DOUBLE : "retirer : retrait d'un noeud double non permis";
+				assert this.nodeType() != NodeType.DOUBLE : "retirer : retrait d'un noeud double non permis";
 				
 				this.clear();
 			} catch (AssertionError e) {
@@ -172,7 +172,27 @@ public class BinaryTree<T> {
 		 */
 		@Override
 		public void clear() {
-			Element lastCurrent = this.currentNode,
+			
+			if(!this.stack.empty()) {
+				Element lastCurrent = this.currentNode;
+				this.goUp();
+				
+				if(this.currentNode.left == lastCurrent) {
+					this.currentNode.left = new Element();
+					this.goLeft();
+				} else {
+					this.currentNode.right = new Element();
+					this.goRight();
+				}
+			// cas de la racine
+			} else {
+				BinaryTree.this.root = new Element();
+				this.goRoot();
+			}
+			
+			
+			
+			/*Element lastCurrent = this.currentNode,
 					current;
 			
 			if (stack.empty()) {
@@ -208,7 +228,7 @@ public class BinaryTree<T> {
 						}
 					}
 				}
-			}
+			}*/
 		}
 
 		/**
@@ -231,7 +251,7 @@ public class BinaryTree<T> {
 		@Override
 		public void addValue(T v) {
 			try {
-				assert isEmpty() : "Ajouter : on n'est pas sur un butoir";
+				assert this.isEmpty() : "Ajouter : on n'est pas sur un butoir";
 				
 				this.currentNode.value = v;
 				this.currentNode.left = new Element();

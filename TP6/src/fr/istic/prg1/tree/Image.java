@@ -473,8 +473,8 @@ public class Image extends AbstractImage {
 			explore_copy (it, it2, it2.getValue());
 			
 			// tester la validite de this
-			if (xHeight (it) == 16) {
-				shrink_image (it, 0);
+			if (xHeight (it) > 14) {
+				shrink (it, 0);
 			}
 			
 		} catch (AssertionError e) {
@@ -483,15 +483,71 @@ public class Image extends AbstractImage {
 		}
 	}
 	
-	private void shrink_image (Iterator<Node> it, int i) {
+	private void shrink (Iterator<Node> it, int deep) {
+		if (it.nodeType() == NodeType.DOUBLE) {
+			if (deep == 13) shrink_image (it);
+			else {
+				it.goLeft();
+				shrink(it, deep++);
+				it.goUp();
+
+				it.goRight();
+				shrink(it, deep++);
+				it.goUp();
+			}
+		}
+	}
+	
+	private void shrink_image (Iterator<Node> it) {
 		
-		do {
+		if (xHeight (it) == 2) {
+			int v = average_value (it);
+			it.clear();
+			it.addValue (Node.valueOf (v));
+			
+		} else if (xHeight (it) > 2) {
+			
 			it.goLeft();
-			i++;
-		} while (it.nodeType() == NodeType.DOUBLE);
+			shrink_image (it);
+			it.goUp();
+			validate_node (it);
+			
+			it.goRight();
+			shrink_image (it);
+			it.goUp();
+			validate_node (it);
+			
+		}
 		
-		//if (i == 15) 
+	}
+	
+	/**
+	 * Calcule la valeur moyenne des feuilles dans un sous-arbre de hauteur 2
+	 * @param it
+	 * @return
+	 */
+	private int average_value (Iterator<Node> it) {
+		int ret = 0;
 		
+		if (it.nodeType() == NodeType.LEAF) return it.getValue().state;
+		if (xHeight (it) == 1) return 1;
+		
+		it.goLeft();
+		ret += average_value (it);
+		it.goUp();
+		
+		it.goRight();
+		ret += average_value (it);
+		it.goUp();
+		
+		switch (xNumberOfNodes (it)) {
+		case 5:	ret = ret / 3;
+				break;
+		case 7:	ret = ret / 4;
+				break;
+		}
+		
+		return ret;
 	}
 
 	/**
