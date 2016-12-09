@@ -3,6 +3,12 @@ package fr.istic.prg1.tree.util;
 import java.util.Stack;
 
 /**
+ * Groupe 1.1
+ * NGUYEN NHON Berenger
+ * IQUEL Erwan
+ */
+
+/**
  * @author Mickaël Foursov <foursov@univ-rennes1.fr>
  * @version 4.0
  * @since 2015-06-15
@@ -15,7 +21,7 @@ import java.util.Stack;
 public class BinaryTree<T> {
 
 	/**
-	 * Type représentant les noeuds.
+	 * Type representant les noeuds.
 	 */
 	private class Element {
 		public T value;
@@ -40,7 +46,7 @@ public class BinaryTree<T> {
 
 	/**
 	 * @return Un nouvel iterateur sur l'arbre this. Le noeud courant de
-	 *         l’itérateur est positionné sur la racine de l’arbre.
+	 *         l'iterateur est positionne sur la racine de l'arbre.
 	 */
 	public TreeIterator iterator() {
 	    return new TreeIterator();
@@ -54,7 +60,7 @@ public class BinaryTree<T> {
 	}
 
 	/**
-	 * Classe représentant les itérateurs sur les arbres binaires.
+	 * Classe representant les iterateurs sur les arbres binaires.
 	 */
 	public class TreeIterator implements Iterator<T> {
 		private Element currentNode;
@@ -66,9 +72,9 @@ public class BinaryTree<T> {
 		}
 
 		/**
-		 * L'itérateur se positionnne sur le fils gauche du noeud courant.
+		 * L'iterateur se positionnne sur le fils gauche du noeud courant.
 		 * 
-		 * @pre Le noeud courant n’est pas un butoir.
+		 * @pre Le noeud courant n'est pas un butoir.
 		 */
 		@Override
 		public void goLeft() {
@@ -85,9 +91,9 @@ public class BinaryTree<T> {
 		}
 
 		/**
-		 * L'itérateur se positionnne sur le fils droit du noeud courant.
+		 * L'iterateur se positionnne sur le fils droit du noeud courant.
 		 * 
-		 * @pre Le noeud courant n’est pas un butoir.
+		 * @pre Le noeud courant n'est pas un butoir.
 		 */
 		@Override
 		public void goRight() {
@@ -104,16 +110,16 @@ public class BinaryTree<T> {
 		}
 
 		/**
-		 * L'itérateur se positionnne sur le père du noeud courant.
+		 * L'iterateur se positionnne sur le pere du noeud courant.
 		 * 
-		 * @pre Le noeud courant n’est pas la racine.
+		 * @pre Le noeud courant n'est pas la racine.
 		 */
 		@Override
 		public void goUp() {
 			try {
 				assert !stack.empty() : " la racine n'a pas de pere";
 				
-				//On sort le premier élément de la pile
+				//On sort le premier element de la pile
 				this.currentNode = this.stack.pop();
 			} catch (AssertionError e) {
 				e.printStackTrace();
@@ -122,7 +128,7 @@ public class BinaryTree<T> {
 		}
 
 		/**
-		 * L'itérateur se positionne sur la racine de l'arbre.
+		 * L'iterateur se positionne sur la racine de l'arbre.
 		 */
 		@Override
 		public void goRoot() {
@@ -144,8 +150,18 @@ public class BinaryTree<T> {
 		 */
 		@Override
 		public NodeType nodeType() {
+			
 			if (this.currentNode.isEmpty()) return NodeType.SENTINEL;
-			if (this.currentNode.left.value == null) return NodeType.LEAF;
+			
+			if (this.currentNode.left.value == null && this.currentNode.right.value == null)
+				return NodeType.LEAF;
+			
+			if (this.currentNode.left.value == null)
+				return NodeType.SIMPLE_RIGHT;
+			
+			if (this.currentNode.right.value == null)
+				return NodeType.SIMPLE_LEFT;
+			
 			return NodeType.DOUBLE;
 		}
 
@@ -159,7 +175,9 @@ public class BinaryTree<T> {
 			try {
 				assert this.nodeType() != NodeType.DOUBLE : "retirer : retrait d'un noeud double non permis";
 				
-				this.clear();
+				this.currentNode.value = null;
+				this.currentNode.left = null;
+				this.currentNode.right = null;
 			} catch (AssertionError e) {
 				e.printStackTrace();
 				System.exit(0);
@@ -167,7 +185,7 @@ public class BinaryTree<T> {
 		}
 
 		/**
-		 * Vider le sous–arbre référencé par le noeud courant, qui devient
+		 * Vider le sous-arbre reference par le noeud courant, qui devient
 		 * butoir.
 		 */
 		@Override
@@ -184,51 +202,12 @@ public class BinaryTree<T> {
 					this.currentNode.right = new Element();
 					this.goRight();
 				}
+				
 			// cas de la racine
 			} else {
 				BinaryTree.this.root = new Element();
 				this.goRoot();
-			}
-			
-			
-			
-			/*Element lastCurrent = this.currentNode,
-					current;
-			
-			if (stack.empty()) {
-				BinaryTree.this.root = new Element();
-			} else {
-				this.currentNode = stack.pop();
-
-				if (stack.empty()) {
-					if (this.currentNode.left == lastCurrent) {
-						BinaryTree.this.root = BinaryTree.this.root.right;
-					} else
-						BinaryTree.this.root = BinaryTree.this.root.left;
-				} else {
-					current = this.currentNode;
-					this.currentNode = stack.pop();
-					
-					if(current.left == lastCurrent) {
-						if (this.currentNode.left == current) {
-							this.currentNode.left = current.right;
-							this.goLeft();
-						} else {
-							this.currentNode.right = current.right;
-							this.goRight();
-						}
-						
-					} else {
-						if (this.currentNode.left == current) {
-							this.currentNode.left = current.left;
-							this.goLeft();
-						} else { 
-							this.currentNode.right = current.left;	
-							this.goRight();
-						}
-					}
-				}
-			}*/
+			}	
 		}
 
 		/**
@@ -240,12 +219,12 @@ public class BinaryTree<T> {
 		}
 
 		/**
-		 * Créer un nouveau noeud de valeur v à cet endroit.
+		 * Creer un nouveau noeud de valeur v a cet endroit.
 		 * 
 		 * @pre Le noeud courant est un butoir.
 		 * 
 		 * @param v
-		 *            Valeur à ajouter.
+		 *            Valeur a ajouter.
 		 */
 
 		@Override
@@ -293,10 +272,10 @@ public class BinaryTree<T> {
 		}
 
 		/**
-		 * Échanger les valeurs associées au noeud courant et à son père d’ordre
-		 * i (le noeud courant reste inchangé).
+		 * Echanger les valeurs associees au noeud courant et a son pere d'ordre
+		 * i (le noeud courant reste inchange).
 		 * 
-		 * @pre i>= 0 et racine est père du noeud courant d’ordre >= i.
+		 * @pre i>= 0 et racine est pere du noeud courant d'ordre >= i.
 		 * 
 		 * @param i
 		 *            ordre du père
